@@ -165,6 +165,111 @@ async def login_user(login_data: UserLogin):
     
     return {"message": "Login successful", "user": user}
 
+@api_router.post("/auth/session", response_model=dict)
+async def process_oauth_session(request: Request, response: Response):
+    """Process OAuth session from Emergent Auth"""
+    session_id = request.headers.get("X-Session-ID")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Session ID required")
+    
+    try:
+        # Call Emergent Auth service to get user data
+        auth_response = requests.get(
+            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+            headers={"X-Session-ID": session_id},
+            timeout=10
+        )
+        
+        if auth_response.status_code != 200:
+            raise HTTPException(status_code=401, detail="Invalid session")
+        
+        user_data = auth_response.json()
+        
+        # Check if user exists by email
+        existing_user = await db.users.find_one(
+            {"email": user_data["email"]}, 
+            {"_id": 0}
+        )
+        
+        if existing_user:
+            # Update existing user with OAuth data
+            user_id = existing_user["user_id"]
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {
+                    "username": user_data["name"],
+                    "picture": user_data.get("picture"),
+                }}
+            )
+        else:
+            # Create new user
+            user_id = f"user_{uuid.uuid4().hex[:12]}"
+            new_user = User(
+                user_id=user_id,
+                username=user_data["name"],
+                email=user_data["email"],
+                picture=user_data.get("picture")
+            )
+            await db.users.insert_one(new_user.dict())
+        
+        # Create session
+        session_token = user_data["session_token"]
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        
+        session = UserSession(
+            user_id=user_id,
+            session_token=session_token,
+            expires_at=expires_at
+        )
+        
+        await db.user_sessions.insert_one(session.dict())
+        
+        # Set secure cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            max_age=7*24*60*60,  # 7 days
+            httponly=True,
+            secure=False,  # Set to True in production with HTTPS
+            samesite="lax",
+            path="/"
+        )
+        
+        # Return user data
+        user_doc = await db.users.find_one(
+            {"user_id": user_id},
+            {"_id": 0}
+        )
+        
+        return {"user": user_doc, "message": "Authentication successful"}
+        
+    except requests.RequestException as e:
+        raise HTTPException(status_code=500, detail="Authentication service error")
+
+@api_router.get("/auth/me", response_model=dict)
+async def get_current_user_info(request: Request):
+    """Get current authenticated user info"""
+    user = await get_current_user(request)
+    return {"user": user.dict()}
+
+@api_router.post("/auth/logout", response_model=dict)
+async def logout_user(request: Request, response: Response):
+    """Logout user and clear session"""
+    session_token = await get_session_token_from_request(request)
+    if session_token:
+        # Remove session from database
+        await db.user_sessions.delete_one({"session_token": session_token})
+    
+    # Clear cookie
+    response.delete_cookie(
+        key="session_token",
+        path="/",
+        secure=False,
+        samesite="lax"
+    )
+    
+    return {"message": "Logged out successfully"}
+
 # Puzzle endpoints
 @api_router.get("/puzzles/categories")
 async def get_categories():
