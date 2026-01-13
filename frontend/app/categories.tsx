@@ -140,7 +140,29 @@ export default function CategoriesScreen() {
           <Ionicons name="arrow-back" size={24} color="#4A90E2" />
         </TouchableOpacity>
         <Text style={styles.title}>Choose Category</Text>
-        <Text style={styles.subtitle}>Select a puzzle theme</Text>
+        <TouchableOpacity style={styles.premiumButton} onPress={() => router.push('/premium')}>
+          {isPremium ? (
+            <Ionicons name="star" size={24} color="#FFD700" />
+          ) : (
+            <Ionicons name="diamond" size={24} color="#4A90E2" />
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* Status Bar */}
+      <View style={styles.statusBar}>
+        <Text style={styles.statusText}>
+          Daily Puzzles: {remainingPuzzles === -1 ? 'Unlimited' : `${remainingPuzzles} remaining`}
+        </Text>
+        {!isPremium && (
+          <TouchableOpacity 
+            style={styles.upgradeChip} 
+            onPress={() => router.push('/premium')}
+          >
+            <Ionicons name="star-outline" size={16} color="#FFD700" />
+            <Text style={styles.upgradeText}>Upgrade</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Categories List */}
