@@ -74,6 +74,12 @@ class UserProgress(BaseModel):
     score: int
     difficulty: int
 
+class UserProgressCreate(BaseModel):
+    user_id: str
+    puzzle_id: str
+    time_taken: int  # seconds
+    difficulty: int
+
 class LeaderboardEntry(BaseModel):
     user_id: str
     username: str
