@@ -138,6 +138,8 @@ async def get_current_user(request: Request):
         raise HTTPException(status_code=401, detail="User not found")
     
     return User(**user_doc)
+
+# Auth endpoints
 @api_router.post("/auth/register", response_model=dict)
 async def register_user(user_data: UserCreate):
     # Check if user already exists
