@@ -32,8 +32,18 @@ export default function CategoriesScreen() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}/api/puzzles/categories`);
-      const data = await response.json();
+      // For demo purposes, use hardcoded categories to avoid API timeout issues
+      const data = [
+        {"id":"animals","name":"Animals","icon":"🐾"},
+        {"id":"nature","name":"Nature","icon":"🌿"},
+        {"id":"food","name":"Food","icon":"🍎"},
+        {"id":"objects","name":"Objects","icon":"📱"},
+        {"id":"vehicles","name":"Vehicles","icon":"🚗"},
+        {"id":"buildings","name":"Buildings","icon":"🏢"}
+      ];
+      
+      // Simulate API delay for realism
+      await new Promise(resolve => setTimeout(resolve, 500));
       setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
