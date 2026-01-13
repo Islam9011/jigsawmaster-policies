@@ -45,9 +45,37 @@ export default function LoginScreen() {
     }
   };
 
-  const handleFacebookLogin = () => {
-    // For now, show coming soon
-    Alert.alert('Coming Soon', 'Facebook login will be available in the next update!');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Success', 'Login successful!', [
+          { text: 'OK', onPress: () => router.replace('/') }
+        ]);
+      } else {
+        Alert.alert('Error', data.detail || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
