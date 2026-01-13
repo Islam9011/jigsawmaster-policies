@@ -46,10 +46,11 @@ export default function DifficultyScreen() {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 300));
       setDifficulties(data);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching difficulties:', error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDifficultyPress = (difficulty: Difficulty) => {
