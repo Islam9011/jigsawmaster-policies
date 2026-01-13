@@ -44,12 +44,6 @@ export default function GameScreen() {
 
   const initializeGame = async () => {
     try {
-      // Get user data
-      const userData = await AsyncStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-
       // Generate puzzle
       await generatePuzzle();
     } catch (error) {
