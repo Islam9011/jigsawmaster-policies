@@ -185,6 +185,31 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
+        {/* Social Login Section */}
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or continue with</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <View style={styles.socialButtonsContainer}>
+          <TouchableOpacity
+            style={styles.socialButton}
+            onPress={handleGoogleLogin}
+          >
+            <Ionicons name="logo-google" size={24} color="#DB4437" />
+            <Text style={styles.socialButtonText}>Google</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.socialButton}
+            onPress={handleFacebookLogin}
+          >
+            <Ionicons name="logo-facebook" size={24} color="#4267B2" />
+            <Text style={styles.socialButtonText}>Facebook</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Don't have an account? </Text>
           <TouchableOpacity onPress={goToRegister}>
