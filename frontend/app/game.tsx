@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -17,18 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 const EXPO_PUBLIC_BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
-
-interface PuzzlePiece {
-  id: string;
-  x: number;
-  y: number;
-  currentX: number;
-  currentY: number;
-  correctX: number;
-  correctY: number;
-  imageData: string;
-  isPlaced: boolean;
-}
 
 interface User {
   id: string;
@@ -40,17 +29,12 @@ export default function GameScreen() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [puzzleImage, setPuzzleImage] = useState<string>('');
-  const [pieces, setPieces] = useState<PuzzlePiece[]>([]);
-  const [completedPieces, setCompletedPieces] = useState(0);
+  const [gameStarted, setGameStarted] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [dragging, setDragging] = useState<string | null>(null);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const puzzleSize = Math.sqrt(Number(difficulty));
-  const pieceSize = (width - 40) / puzzleSize;
-  const boardHeight = pieceSize * puzzleSize;
 
   useEffect(() => {
     initializeGame();
@@ -58,19 +42,6 @@ export default function GameScreen() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    // Start timer when puzzle is loaded
-    if (!loading && !generating && pieces.length > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeElapsed(prev => prev + 1);
-      }, 1000);
-    }
-    
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [loading, generating, pieces.length]);
 
   const initializeGame = async () => {
     try {
@@ -107,112 +78,28 @@ export default function GameScreen() {
       
       if (response.ok) {
         setPuzzleImage(puzzleData.image_base64);
-        generatePieces(puzzleData.image_base64);
+        setGameStarted(true);
+        startTimer();
       } else {
         Alert.alert('Error', puzzleData.detail || 'Failed to generate puzzle');
       }
     } catch (error) {
       console.error('Error generating puzzle:', error);
-      Alert.alert('Error', 'Failed to generate puzzle');
+      Alert.alert('Error', 'Network error. Please try again.');
     } finally {
       setGenerating(false);
       setLoading(false);
     }
   };
 
-  const generatePieces = (imageBase64: string) => {
-    const newPieces: PuzzlePiece[] = [];
-    const totalPieces = Number(difficulty);
-    
-    // Create puzzle pieces
-    for (let i = 0; i < totalPieces; i++) {
-      const row = Math.floor(i / puzzleSize);
-      const col = i % puzzleSize;
-      
-      const piece: PuzzlePiece = {
-        id: `piece_${i}`,
-        x: col * pieceSize,
-        y: row * pieceSize,
-        currentX: Math.random() * (width - pieceSize - 40) + 20,
-        currentY: boardHeight + 50 + Math.random() * 200,
-        correctX: col * pieceSize + 20,
-        correctY: row * pieceSize + 100,
-        imageData: imageBase64,
-        isPlaced: false
-      };
-      
-      newPieces.push(piece);
-    }
-    
-    // Shuffle pieces
-    for (let i = newPieces.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const tempX = newPieces[i].currentX;
-      const tempY = newPieces[i].currentY;
-      newPieces[i].currentX = newPieces[j].currentX;
-      newPieces[i].currentY = newPieces[j].currentY;
-      newPieces[j].currentX = tempX;
-      newPieces[j].currentY = tempY;
-    }
-    
-    setPieces(newPieces);
-  };
-
-  const createPanResponder = (piece: PuzzlePiece) => {
-    return PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: () => {
-        setDragging(piece.id);
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        const newX = piece.currentX + gestureState.dx;
-        const newY = piece.currentY + gestureState.dy;
-        
-        setPieces(prevPieces => 
-          prevPieces.map(p => 
-            p.id === piece.id 
-              ? { ...p, currentX: newX, currentY: newY }
-              : p
-          )
-        );
-      },
-      onPanResponderRelease: () => {
-        setDragging(null);
-        checkPiecePlacement(piece);
-      },
-    });
-  };
-
-  const checkPiecePlacement = (piece: PuzzlePiece) => {
-    const tolerance = 30;
-    const isCorrectPosition = 
-      Math.abs(piece.currentX - piece.correctX) < tolerance &&
-      Math.abs(piece.currentY - piece.correctY) < tolerance;
-
-    if (isCorrectPosition && !piece.isPlaced) {
-      // Snap to correct position
-      setPieces(prevPieces => 
-        prevPieces.map(p => 
-          p.id === piece.id 
-            ? { ...p, currentX: piece.correctX, currentY: piece.correctY, isPlaced: true }
-            : p
-        )
-      );
-      
-      setCompletedPieces(prev => {
-        const newCount = prev + 1;
-        if (newCount === Number(difficulty)) {
-          completePuzzle();
-        }
-        return newCount;
-      });
-    }
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      setTimeElapsed(prev => prev + 1);
+    }, 1000);
   };
 
   const completePuzzle = async () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    setIsComplete(true);
     
     if (user) {
       try {
@@ -233,7 +120,7 @@ export default function GameScreen() {
         if (response.ok) {
           Alert.alert(
             'Congratulations! 🎉',
-            `Puzzle completed!\nTime: ${formatTime(timeElapsed)}\nScore: ${result.score}`,
+            `Puzzle completed!\\nTime: ${formatTime(timeElapsed)}\\nScore: ${result.score}`,
             [
               { text: 'Play Again', onPress: () => router.replace('/categories') },
               { text: 'Home', onPress: () => router.replace('/') }
@@ -275,12 +162,15 @@ export default function GameScreen() {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
+        <View style={styles.logoContainer}>
+          <Ionicons name="extension-puzzle-outline" size={80} color="#4A90E2" />
+        </View>
         <ActivityIndicator size="large" color="#4A90E2" />
         <Text style={styles.loadingText}>
-          {generating ? 'Generating puzzle...' : 'Loading...'}
+          {generating ? 'Generating your puzzle...' : 'Loading...'}
         </Text>
         <Text style={styles.loadingSubtext}>
-          {generating ? 'This may take a moment' : 'Please wait'}
+          {generating ? 'Creating a beautiful AI-generated image for your jigsaw puzzle. This may take up to 60 seconds.' : 'Please wait'}
         </Text>
       </SafeAreaView>
     );
@@ -298,92 +188,88 @@ export default function GameScreen() {
         
         <View style={styles.gameInfo}>
           <Text style={styles.categoryText}>{categoryName}</Text>
-          <Text style={styles.difficultyText}>{difficultyName}</Text>
+          <Text style={styles.difficultyText}>{difficultyName} ({difficulty} pieces)</Text>
         </View>
         
         <View style={styles.stats}>
           <Text style={styles.timeText}>{formatTime(timeElapsed)}</Text>
-          <Text style={styles.progressText}>{completedPieces}/{difficulty}</Text>
         </View>
       </View>
 
       {/* Game Area */}
-      <View style={styles.gameArea}>
-        {/* Puzzle Board - Background grid */}
-        <View style={[styles.puzzleBoard, { height: boardHeight }]}>
-          {Array.from({ length: Number(difficulty) }).map((_, index) => {
-            const row = Math.floor(index / puzzleSize);
-            const col = index % puzzleSize;
-            return (
-              <View
-                key={`slot_${index}`}
-                style={[
-                  styles.pieceSlot,
-                  {
-                    left: col * pieceSize,
-                    top: row * pieceSize,
-                    width: pieceSize,
-                    height: pieceSize,
-                  }
-                ]}
+      <ScrollView style={styles.gameArea} contentContainerStyle={styles.gameContent}>
+        {/* Puzzle Image Display */}
+        <View style={styles.puzzleContainer}>
+          <Text style={styles.instructionText}>
+            Your {puzzleSize}x{puzzleSize} jigsaw puzzle is ready!
+          </Text>
+          
+          {puzzleImage && (
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: `data:image/png;base64,${puzzleImage}` }}
+                style={styles.puzzleImage}
+                resizeMode="contain"
               />
-            );
-          })}
-        </View>
+            </View>
+          )}
 
-        {/* Puzzle Pieces */}
-        <View style={styles.piecesContainer}>
-          {pieces.map((piece) => {
-            const panResponder = createPanResponder(piece);
-            return (
-              <Animated.View
-                key={piece.id}
-                style={[
-                  styles.puzzlePiece,
-                  {
-                    left: piece.currentX,
-                    top: piece.currentY,
-                    width: pieceSize,
-                    height: pieceSize,
-                    zIndex: dragging === piece.id ? 1000 : piece.isPlaced ? 100 : 1,
-                    opacity: piece.isPlaced ? 1 : 0.9,
-                  }
-                ]}
-                {...panResponder.panHandlers}
-              >
-                <Image
-                  source={{ uri: `data:image/png;base64,${piece.imageData}` }}
-                  style={[
-                    styles.pieceImage,
-                    {
-                      transform: [
-                        { translateX: -piece.x },
-                        { translateY: -piece.y }
-                      ]
-                    }
-                  ]}
-                  resizeMode="cover"
-                />
-                {piece.isPlaced && (
-                  <View style={styles.placedIndicator}>
-                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
-                  </View>
-                )}
-              </Animated.View>
-            );
-          })}
-        </View>
-      </View>
+          <View style={styles.puzzleInfo}>
+            <View style={styles.infoRow}>
+              <Ionicons name="extension-puzzle" size={20} color="#4A90E2" />
+              <Text style={styles.infoText}>Difficulty: {difficultyName}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="grid" size={20} color="#4CAF50" />
+              <Text style={styles.infoText}>Grid: {puzzleSize}×{puzzleSize} pieces</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="time" size={20} color="#FF9800" />
+              <Text style={styles.infoText}>Time: {formatTime(timeElapsed)}</Text>
+            </View>
+          </View>
 
-      {/* Progress Bar */}
-      <View style={styles.progressBar}>
-        <View 
-          style={[
-            styles.progressFill, 
-            { width: `${(completedPieces / Number(difficulty)) * 100}%` }
-          ]} 
-        />
-      </View>
+          {/* Simulate Puzzle Completion Button (for demo) */}
+          <View style={styles.demoSection}>
+            <Text style={styles.demoTitle}>🎯 Demo Mode</Text>
+            <Text style={styles.demoText}>
+              In the full game, you would drag and drop puzzle pieces to solve this image!
+              For now, tap the button below to simulate completing the puzzle.
+            </Text>
+            <TouchableOpacity
+              style={styles.completeButton}
+              onPress={completePuzzle}
+            >
+              <Ionicons name="checkmark-circle" size={24} color="white" />
+              <Text style={styles.completeButtonText}>Complete Puzzle (Demo)</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.featuresList}>
+            <Text style={styles.featuresTitle}>🚀 Coming Soon: Full Game Features</Text>
+            
+            <View style={styles.featureItem}>
+              <Ionicons name="move" size={20} color="#4A90E2" />
+              <Text style={styles.featureText}>Drag & drop puzzle pieces</Text>
+            </View>
+            
+            <View style={styles.featureItem}>
+              <Ionicons name="resize" size={20} color="#4CAF50" />
+              <Text style={styles.featureText}>Piece snapping & rotation</Text>
+            </View>
+            
+            <View style={styles.featureItem}>
+              <Ionicons name="trophy" size={20} color="#FFD700" />
+              <Text style={styles.featureText}>Score based on time & difficulty</Text>
+            </View>
+            
+            <View style={styles.featureItem}>
+              <Ionicons name="people" size={20} color="#FF6B35" />
+              <Text style={styles.featureText}>Global leaderboards</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -398,17 +284,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a2e',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  logoContainer: {
+    marginBottom: 30,
   },
   loadingText: {
     color: 'white',
     marginTop: 16,
     fontSize: 18,
     fontWeight: '600',
+    textAlign: 'center',
   },
   loadingSubtext: {
     color: '#666',
     marginTop: 8,
     fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
   },
   header: {
     flexDirection: 'row',
@@ -445,72 +338,132 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  progressText: {
-    color: '#4A90E2',
-    fontSize: 12,
-  },
   gameArea: {
     flex: 1,
-    padding: 20,
-    position: 'relative',
   },
-  puzzleBoard: {
+  gameContent: {
+    padding: 20,
+  },
+  puzzleContainer: {
+    alignItems: 'center',
+  },
+  instructionText: {
+    color: '#4A90E2',
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  imageContainer: {
     backgroundColor: 'rgba(74, 144, 226, 0.1)',
-    borderRadius: 8,
+    borderRadius: 12,
+    padding: 10,
     borderWidth: 2,
     borderColor: 'rgba(74, 144, 226, 0.3)',
-    position: 'relative',
+    marginBottom: 20,
+    shadowColor: '#4A90E2',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  pieceSlot: {
-    position: 'absolute',
+  puzzleImage: {
+    width: width - 80,
+    height: width - 80,
+    borderRadius: 8,
+  },
+  puzzleInfo: {
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: 'rgba(74, 144, 226, 0.2)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(74, 144, 226, 0.3)',
+    width: '100%',
   },
-  piecesContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  puzzlePiece: {
-    position: 'absolute',
-    borderRadius: 4,
+  infoText: {
+    color: '#fff',
+    fontSize: 16,
+    marginLeft: 12,
+  },
+  demoSection: {
+    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#4A90E2',
-    overflow: 'hidden',
-    shadowColor: '#000',
+    borderColor: 'rgba(255, 193, 7, 0.3)',
+    width: '100%',
+    alignItems: 'center',
+  },
+  demoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#FFC107',
+  },
+  demoText: {
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+    opacity: 0.9,
+  },
+  completeButton: {
+    backgroundColor: '#4CAF50',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    shadowColor: '#4CAF50',
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 4,
   },
-  pieceImage: {
-    width: width - 40,
-    height: width - 40,
+  completeButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
-  placedIndicator: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    backgroundColor: 'rgba(76, 175, 80, 0.8)',
-    borderRadius: 10,
-    padding: 2,
+  featuresList: {
+    backgroundColor: 'rgba(74, 144, 226, 0.1)',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(74, 144, 226, 0.3)',
+    width: '100%',
   },
-  progressBar: {
-    height: 4,
-    backgroundColor: 'rgba(74, 144, 226, 0.2)',
-    marginHorizontal: 20,
-    marginBottom: 10,
-    borderRadius: 2,
+  featuresTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#4A90E2',
+    textAlign: 'center',
   },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4A90E2',
-    borderRadius: 2,
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  featureText: {
+    color: '#fff',
+    fontSize: 14,
+    marginLeft: 12,
+    opacity: 0.9,
   },
 });
