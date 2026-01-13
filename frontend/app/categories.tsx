@@ -108,15 +108,35 @@ export default function CategoriesScreen() {
 
   const renderCategory = ({ item }: { item: Category }) => (
     <TouchableOpacity
-      style={styles.categoryCard}
+      style={[
+        styles.categoryCard,
+        !item.isUnlocked && styles.lockedCategoryCard
+      ]}
       onPress={() => handleCategoryPress(item)}
       activeOpacity={0.7}
     >
       <View style={styles.categoryIcon}>
         <Text style={styles.iconText}>{item.icon}</Text>
+        {!item.isUnlocked && (
+          <View style={styles.lockOverlay}>
+            <Ionicons name="lock-closed" size={20} color="#666" />
+          </View>
+        )}
       </View>
-      <Text style={styles.categoryName}>{item.name}</Text>
-      <Ionicons name="chevron-forward" size={20} color="#4A90E2" />
+      <Text style={[
+        styles.categoryName,
+        !item.isUnlocked && styles.lockedCategoryName
+      ]}>
+        {item.name}
+      </Text>
+      {!item.isUnlocked ? (
+        <View style={styles.premiumBadge}>
+          <Ionicons name="diamond" size={12} color="#FFD700" />
+          <Text style={styles.premiumText}>Premium</Text>
+        </View>
+      ) : (
+        <Ionicons name="chevron-forward" size={20} color="#4A90E2" />
+      )}
     </TouchableOpacity>
   );
 
