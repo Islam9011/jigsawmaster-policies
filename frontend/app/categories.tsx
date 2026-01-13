@@ -45,10 +45,11 @@ export default function CategoriesScreen() {
       // Simulate API delay for realism
       await new Promise(resolve => setTimeout(resolve, 500));
       setCategories(data);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleCategoryPress = (category: Category) => {
