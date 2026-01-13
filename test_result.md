@@ -268,16 +268,16 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 0
+  test_sequence: 1
   run_ui: false
 
 test_plan:
   current_focus:
-    - "AI Image Generation Integration"
-    - "User Authentication System"
-    - "Puzzle Management System"
     - "Category Selection Screen"
     - "Game Screen with AI Puzzle"
+    - "User Authentication UI"
+    - "Profile & Progress Screen"
+    - "Leaderboard Screen"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -285,3 +285,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Jigsaw Puzzle game MVP completed with beautiful UI and core functionality. Backend has full API with AI image generation, user auth, puzzles, scoring, and leaderboards. Frontend has all screens working. Ready for backend testing to verify AI image generation and API endpoints work correctly."
+  - agent: "testing"
+    message: "🎉 BACKEND TESTING COMPLETE - ALL APIS WORKING! Fixed 2 critical issues: (1) MongoDB connection URL changed from mongo:27017 to localhost:27017, (2) Fixed ObjectId serialization in login endpoint and UserProgress API model. All 8 backend endpoints tested and passing: Categories ✅, Difficulties ✅, User Registration ✅, User Login ✅, AI Puzzle Generation ✅ (CRITICAL - working perfectly with 1.9MB images), Progress Tracking ✅, Global Leaderboard ✅, Category Leaderboard ✅. Backend is production-ready!"
