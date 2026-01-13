@@ -10,9 +10,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  PanResponder,
-  Animated,
 } from 'react-native';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedGestureHandler, 
+  useAnimatedStyle,
+  runOnJS
+} from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
