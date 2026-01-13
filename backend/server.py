@@ -33,11 +33,12 @@ api_router = APIRouter(prefix="/api")
 
 # Pydantic Models
 class User(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str = Field(default_factory=lambda: f"user_{uuid.uuid4().hex[:12]}")
     username: str
     email: str
-    password: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    password: Optional[str] = None  # Optional for OAuth users
+    picture: Optional[str] = None  # For profile pictures from OAuth
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     total_score: int = 0
     puzzles_completed: int = 0
     preferred_language: str = "en"
@@ -51,6 +52,12 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+class UserSession(BaseModel):
+    user_id: str
+    session_token: str
+    expires_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Puzzle(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
