@@ -243,7 +243,7 @@ async def process_oauth_session(request: Request, response: Response):
         
         return {"user": user_doc, "message": "Authentication successful"}
         
-    except requests.RequestException as e:
+    except requests.RequestException:
         raise HTTPException(status_code=500, detail="Authentication service error")
 
 @api_router.get("/auth/me", response_model=dict)
@@ -300,12 +300,12 @@ async def generate_puzzle(puzzle_data: PuzzleCreate):
     try:
         # Category-specific prompts
         prompts = {
-            "animals": f"A beautiful, clear photo of a cute animal in its natural habitat, perfect for a jigsaw puzzle",
-            "nature": f"A stunning landscape or nature scene with vibrant colors, perfect for a jigsaw puzzle",
-            "food": f"A delicious, colorful food item or meal that looks appetizing, perfect for a jigsaw puzzle",
-            "objects": f"A common everyday object with clear details and good lighting, perfect for a jigsaw puzzle",
-            "vehicles": f"A cool vehicle like a car, plane, or boat with clear details, perfect for a jigsaw puzzle",
-            "buildings": f"An interesting building or architectural structure with clear details, perfect for a jigsaw puzzle"
+            "animals": "A beautiful, clear photo of a cute animal in its natural habitat, perfect for a jigsaw puzzle",
+            "nature": "A stunning landscape or nature scene with vibrant colors, perfect for a jigsaw puzzle",
+            "food": "A delicious, colorful food item or meal that looks appetizing, perfect for a jigsaw puzzle",
+            "objects": "A common everyday object with clear details and good lighting, perfect for a jigsaw puzzle",
+            "vehicles": "A cool vehicle like a car, plane, or boat with clear details, perfect for a jigsaw puzzle",
+            "buildings": "An interesting building or architectural structure with clear details, perfect for a jigsaw puzzle"
         }
         
         prompt = prompts.get(puzzle_data.category, "A beautiful, detailed image perfect for a jigsaw puzzle")
