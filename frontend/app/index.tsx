@@ -98,7 +98,7 @@ export default function HomeScreen() {
         <View style={styles.secondaryButtons}>
           <TouchableOpacity style={styles.secondaryButton} onPress={handleProfilePress}>
             <Ionicons name="person-circle" size={24} color="#4A90E2" />
-            <Text style={styles.secondaryButtonText}>{user ? 'Profile' : 'Sign In'}</Text>
+            <Text style={styles.secondaryButtonText}>{user ? 'Profile' : 'Login'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.secondaryButton} onPress={handleLeaderboardPress}>
