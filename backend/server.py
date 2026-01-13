@@ -107,6 +107,10 @@ async def login_user(login_data: UserLogin):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
+    # Remove MongoDB ObjectId to avoid serialization issues
+    if "_id" in user:
+        del user["_id"]
+    
     return {"message": "Login successful", "user": user}
 
 # Puzzle endpoints
