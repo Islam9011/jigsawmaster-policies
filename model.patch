@@ -1,0 +1,12 @@
+diff --git a/backend/.env b/backend/.env
+index 0f4322c..cd4a26f 100644
+--- a/backend/.env
++++ b/backend/.env
+@@ -1,2 +1,3 @@
+-MONGO_URL="mongodb://localhost:27017"
+-DB_NAME="test_database"
+\ No newline at end of file
++MONGO_URL=mongodb://mongo:27017/
++DB_NAME=mydb
++EMERGENT_LLM_KEY=sk-emergent-7269c74009f3919190
+\ No newline at end of file
