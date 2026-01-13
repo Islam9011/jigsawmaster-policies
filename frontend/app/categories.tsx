@@ -22,36 +22,54 @@ interface Category {
   id: string;
   name: string;
   icon: string;
+  isUnlocked?: boolean;
+  isPremium?: boolean;
 }
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [remainingPuzzles, setRemainingPuzzles] = useState<number>(0);
+  const [isPremium, setIsPremium] = useState(false);
+  
+  const monetization = MonetizationManager.getInstance();
 
   useEffect(() => {
-    fetchCategories();
+    loadCategoriesAndStatus();
   }, []);
 
-  const fetchCategories = async () => {
+  const loadCategoriesAndStatus = async () => {
     try {
-      // For demo purposes, use hardcoded categories to avoid API timeout issues
+      // Load categories with premium status
       const data = [
-        {"id":"animals","name":"Animals","icon":"🐾"},
-        {"id":"nature","name":"Nature","icon":"🌿"},
-        {"id":"food","name":"Food","icon":"🍎"},
-        {"id":"objects","name":"Objects","icon":"📱"},
-        {"id":"vehicles","name":"Vehicles","icon":"🚗"},
-        {"id":"buildings","name":"Buildings","icon":"🏢"}
+        {"id":"animals","name":"Animals","icon":"🐾", isPremium: false},
+        {"id":"nature","name":"Nature","icon":"🌿", isPremium: false},
+        {"id":"food","name":"Food","icon":"🍎", isPremium: false},
+        {"id":"objects","name":"Objects","icon":"📱", isPremium: true},
+        {"id":"vehicles","name":"Vehicles","icon":"🚗", isPremium: true},
+        {"id":"buildings","name":"Buildings","icon":"🏢", isPremium: true}
       ];
       
-      // Simulate API delay for realism
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setCategories(data);
-      setLoading(false);
+      // Check which categories are unlocked
+      const categoriesWithStatus = await Promise.all(
+        data.map(async (category) => {
+          const isUnlocked = await monetization.isCategoryUnlocked(category.id);
+          return { ...category, isUnlocked };
+        })
+      );
+      
+      setCategories(categoriesWithStatus);
+      
+      // Load user status
+      const remaining = await monetization.getRemainingPuzzles();
+      const limits = await monetization.getUserLimits();
+      setRemainingPuzzles(remaining);
+      setIsPremium(limits.isPremium);
+      
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      setLoading(false);
+      console.error('Error loading categories:', error);
     }
+    setLoading(false);
   };
 
   const handleCategoryPress = (category: Category) => {
