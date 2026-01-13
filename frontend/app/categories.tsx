@@ -72,7 +72,33 @@ export default function CategoriesScreen() {
     setLoading(false);
   };
 
-  const handleCategoryPress = (category: Category) => {
+  const handleCategoryPress = async (category: Category) => {
+    if (!category.isUnlocked) {
+      Alert.alert(
+        'Premium Category 🌟',
+        `${category.name} puzzles are part of our premium collection. Upgrade to Premium to unlock all categories!`,
+        [
+          { text: 'Maybe Later', style: 'cancel' },
+          { text: 'Upgrade Now', onPress: () => router.push('/premium') }
+        ]
+      );
+      return;
+    }
+
+    // Check daily puzzle limit
+    const canPlay = await monetization.canPlayPuzzle();
+    if (!canPlay.canPlay) {
+      Alert.alert(
+        'Daily Limit Reached 📱',
+        canPlay.reason,
+        [
+          { text: 'Maybe Later', style: 'cancel' },
+          { text: 'Upgrade to Premium', onPress: () => router.push('/premium') }
+        ]
+      );
+      return;
+    }
+
     router.push(`/difficulty?category=${category.id}&categoryName=${category.name}`);
   };
 
