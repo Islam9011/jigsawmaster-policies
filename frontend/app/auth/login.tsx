@@ -22,7 +22,33 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async () => {
+  // Check for OAuth callback first
+  useEffect(() => {
+    // Check if we're in an OAuth callback URL
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      if (hash && hash.includes('session_id=')) {
+        const sessionId = new URLSearchParams(hash.substring(1)).get('session_id');
+        if (sessionId) {
+          router.replace(`/auth/callback?session_id=${sessionId}`);
+          return;
+        }
+      }
+    }
+  }, []);
+
+  const handleGoogleLogin = () => {
+    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    if (typeof window !== 'undefined') {
+      const redirectUrl = window.location.origin + '/';
+      window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+    }
+  };
+
+  const handleFacebookLogin = () => {
+    // For now, show coming soon
+    Alert.alert('Coming Soon', 'Facebook login will be available in the next update!');
+  };
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
