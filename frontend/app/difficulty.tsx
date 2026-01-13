@@ -33,8 +33,18 @@ export default function DifficultyScreen() {
 
   const fetchDifficulties = async () => {
     try {
-      const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}/api/puzzles/difficulties`);
-      const data = await response.json();
+      // For demo purposes, use hardcoded difficulties
+      const data = [
+        {"level": 9, "name": "Easy", "pieces": "3x3"},
+        {"level": 16, "name": "Normal", "pieces": "4x4"},
+        {"level": 25, "name": "Hard", "pieces": "5x5"},
+        {"level": 36, "name": "Expert", "pieces": "6x6"},
+        {"level": 49, "name": "Master", "pieces": "7x7"},
+        {"level": 64, "name": "Extreme", "pieces": "8x8"}
+      ];
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
       setDifficulties(data);
     } catch (error) {
       console.error('Error fetching difficulties:', error);
