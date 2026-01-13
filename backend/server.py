@@ -199,19 +199,27 @@ async def get_puzzle(puzzle_id: str):
 
 # Progress endpoints
 @api_router.post("/progress/complete", response_model=dict)
-async def complete_puzzle(progress: UserProgress):
+async def complete_puzzle(progress_data: UserProgressCreate):
     # Calculate score based on difficulty and time
-    base_score = progress.difficulty * 10
-    time_bonus = max(0, 300 - progress.time_taken)  # Bonus for completing quickly
+    base_score = progress_data.difficulty * 10
+    time_bonus = max(0, 300 - progress_data.time_taken)  # Bonus for completing quickly
     total_score = base_score + time_bonus
-    progress.score = total_score
+    
+    # Create full progress object
+    progress = UserProgress(
+        user_id=progress_data.user_id,
+        puzzle_id=progress_data.puzzle_id,
+        time_taken=progress_data.time_taken,
+        difficulty=progress_data.difficulty,
+        score=total_score
+    )
     
     # Save progress
     await db.user_progress.insert_one(progress.dict())
     
     # Update user stats
     await db.users.update_one(
-        {"id": progress.user_id},
+        {"id": progress_data.user_id},
         {
             "$inc": {
                 "total_score": total_score,
