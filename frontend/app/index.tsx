@@ -35,14 +35,7 @@ export default function HomeScreen() {
   }, []);
 
   const checkUserSession = async () => {
-    try {
-      const userData = await AsyncStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error('Error checking user session:', error);
-    }
+    // For demo purposes, we'll skip user session checking
     setLoading(false);
   };
 
