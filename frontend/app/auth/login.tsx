@@ -110,6 +110,11 @@ export default function LoginScreen() {
     }
   };
 
+  const handleFacebookLogin = () => {
+    // For now, show coming soon
+    Alert.alert('Coming Soon', 'Facebook login will be available in the next update!');
+  };
+
   const goToRegister = () => {
     router.push('/auth/register');
   };
