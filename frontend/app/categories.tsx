@@ -313,4 +313,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
+  lockedCategoryCard: {
+    opacity: 0.6,
+    borderColor: '#666',
+  },
+  lockedCategoryName: {
+    color: '#999',
+  },
+  lockOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 12,
+    padding: 4,
+  },
+  premiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.5)',
+  },
+  premiumText: {
+    color: '#FFD700',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginLeft: 4,
+  },
 });
