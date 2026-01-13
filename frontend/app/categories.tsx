@@ -9,9 +9,11 @@ import {
   ActivityIndicator,
   StatusBar,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import MonetizationManager from '../utils/MonetizationManager';
 
 const { width } = Dimensions.get('window');
 const EXPO_PUBLIC_BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
