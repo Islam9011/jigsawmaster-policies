@@ -94,44 +94,15 @@ export default function GameScreen() {
   const completePuzzle = async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     
-    if (user) {
-      try {
-        const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}/api/progress/complete`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_id: user.id,
-            puzzle_id: `generated_${Date.now()}`,
-            time_taken: timeElapsed,
-            difficulty: Number(difficulty)
-          }),
-        });
-        
-        const result = await response.json();
-        if (response.ok) {
-          Alert.alert(
-            'Congratulations! 🎉',
-            `Puzzle completed!\\nTime: ${formatTime(timeElapsed)}\\nScore: ${result.score}`,
-            [
-              { text: 'Play Again', onPress: () => router.replace('/categories') },
-              { text: 'Home', onPress: () => router.replace('/') }
-            ]
-          );
-        }
-      } catch (error) {
-        console.error('Error saving progress:', error);
-        Alert.alert(
-          'Puzzle Complete! 🎉',
-          `Time: ${formatTime(timeElapsed)}`,
-          [
-            { text: 'Play Again', onPress: () => router.replace('/categories') },
-            { text: 'Home', onPress: () => router.replace('/') }
-          ]
-        );
-      }
-    }
+    // For now, just show completion without user authentication
+    Alert.alert(
+      'Congratulations! 🎉',
+      `Puzzle completed!\\nTime: ${formatTime(timeElapsed)}\\nDifficulty: ${difficultyName}`,
+      [
+        { text: 'Play Again', onPress: () => router.replace('/categories') },
+        { text: 'Home', onPress: () => router.replace('/') }
+      ]
+    );
   };
 
   const formatTime = (seconds: number) => {
