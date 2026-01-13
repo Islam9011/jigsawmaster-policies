@@ -35,6 +35,7 @@ export default function GameScreen() {
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const puzzleSize = Math.sqrt(Number(difficulty));
+  const monetization = MonetizationManager.getInstance();
 
   useEffect(() => {
     initializeGame();
@@ -45,6 +46,9 @@ export default function GameScreen() {
 
   const initializeGame = async () => {
     try {
+      // Record that a puzzle was started (for daily limits)
+      await monetization.recordPuzzlePlayed();
+      
       // Generate puzzle
       await generatePuzzle();
     } catch (error) {
