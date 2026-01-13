@@ -40,11 +40,8 @@ export default function HomeScreen() {
   };
 
   const handlePlayPress = () => {
-    if (user) {
-      router.push('/categories');
-    } else {
-      router.push('/auth/login');
-    }
+    // For demo purposes, go directly to categories
+    router.push('/categories');
   };
 
   const handleProfilePress = () => {
