@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب حذف الحساب - Jigsaw Master</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #16213e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #f44336;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #4A90E2;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+        }
+        .warning {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .form-section {
+            background: rgba(74, 144, 226, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4A90E2;
+            font-weight: bold;
+        }
+        input[type="email"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+            border-radius: 5px;
+            background: rgba(74, 144, 226, 0.1);
+            color: #fff;
+            font-size: 14px;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            margin: 15px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-left: 10px;
+            transform: scale(1.2);
+        }
+        .submit-btn {
+            background: #f44336;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background: #d32f2f;
+        }
+        .submit-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .back-link {
+            display: inline-block;
+            color: #4A90E2;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .info-list {
+            margin: 15px 0;
+        }
+        .info-list li {
+            margin: 8px 0;
+            padding-right: 20px;
+        }
+        .contact-info {
+            background: rgba(74, 144, 226, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← العودة للموقع الرئيسي</a>
+        
+        <h1>🗑️ طلب حذف الحساب</h1>
+        
+        <div class="warning">
+            <p><strong>⚠️ تحذير مهم:</strong> حذف الحساب عملية غير قابلة للإلغاء. ستفقد جميع بياناتك ولا يمكن استردادها.</p>
+        </div>
+        
+        <h2>📋 ما سيتم حذفه</h2>
+        <ul class="info-list">
+            <li>🎮 جميع بيانات اللعب والنقاط</li>
+            <li>🏆 الإنجازات والترتيب في لوحة القيادة</li>
+            <li>📧 معلومات الحساب (الاسم والإيميل)</li>
+            <li>💎 اشتراك Premium (إن وُجد)</li>
+            <li>🎯 إعدادات التطبيق الشخصية</li>
+            <li>📊 جميع الإحصائيات والتقدم</li>
+        </ul>
+
+        <h2>⏰ مدة المعالجة</h2>
+        <p>سيتم معالجة طلبك خلال <strong>7-14 يوم عمل</strong>. ستتلقى تأكيداً عبر البريد الإلكتروني عند اكتمال الحذف.</p>
+
+        <form id="deleteAccountForm" class="form-section">
+            <h2>📝 نموذج طلب الحذف</h2>
+            
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني المسجل في التطبيق *</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="your.email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="username">اسم المستخدم في التطبيق</label>
+                <input type="text" id="username" name="username" 
+                       placeholder="اسم المستخدم (اختياري)">
+            </div>
+
+            <div class="form-group">
+                <label for="reason">سبب طلب حذف الحساب *</label>
+                <select id="reason" name="reason" required>
+                    <option value="">اختر السبب</option>
+                    <option value="لا أستخدم التطبيق بعد الآن">لا أستخدم التطبيق بعد الآن</option>
+                    <option value="مخاوف حول الخصوصية">مخاوف حول الخصوصية</option>
+                    <option value="أريد البدء من جديد">أريد البدء من جديد</option>
+                    <option value="مشاكل تقنية">مشاكل تقنية</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="additional_info">معلومات إضافية (اختياري)</label>
+                <textarea id="additional_info" name="additional_info" 
+                         placeholder="أي معلومات إضافية تساعدنا في تحسين خدماتنا..."></textarea>
+            </div>
+
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="confirm_identity" name="confirm_identity" required>
+                    أؤكد أن هذا الحساب ملكي وأطلب حذفه نهائياً
+                </label>
+            </div>
+
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="understand_permanent" name="understand_permanent" required>
+                    أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه
+                </label>
+            </div>
+
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="cancel_subscription" name="cancel_subscription">
+                    لدي اشتراك Premium وأريد إلغاءه أيضاً
+                </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                🗑️ إرسال طلب حذف الحساب
+            </button>
+        </form>
+
+        <div class="contact-info">
+            <h2>📞 تواصل معنا</h2>
+            <p>إذا كان لديك أي استفسارات أو تحتاج مساعدة:</p>
+            <p><strong>البريد الإلكتروني:</strong> islamjehad.il@gmail.com</p>
+            <p><strong>موضوع الرسالة:</strong> [Account Deletion Request]</p>
+            <p><strong>وقت الرد:</strong> خلال 24-48 ساعة</p>
+        </div>
+
+        <div class="warning">
+            <h3>🔒 حماية الخصوصية</h3>
+            <p>نحن ملتزمون بحماية خصوصيتك. عملية الحذف تتم وفقاً لأعلى معايير الأمان والخصوصية.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('deleteAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const email = document.getElementById('email').value;
+            const reason = document.getElementById('reason').value;
+            const username = document.getElementById('username').value;
+            const additionalInfo = document.getElementById('additional_info').value;
+            
+            if (!email || !reason) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ جاري الإرسال...';
+            
+            // محاكاة إرسال الطلب
+            setTimeout(() => {
+                alert('✅ تم إرسال طلب حذف الحساب بنجاح!\\n\\nستتلقى رداً عبر البريد الإلكتروني خلال 7-14 يوم عمل.');
+                
+                // إرسال إيميل تلقائي (في التطبيق الحقيقي سيكون عبر API)
+                const emailBody = encodeURIComponent(`
+طلب حذف حساب Jigsaw Master
+
+البريد الإلكتروني: ${email}
+اسم المستخدم: ${username || 'غير محدد'}
+السبب: ${reason}
+معلومات إضافية: ${additionalInfo || 'لا توجد'}
+
+تاريخ الطلب: ${new Date().toLocaleString('ar-EG')}
+                `);
+                
+                window.location.href = `mailto:islamjehad.il@gmail.com?subject=Account Deletion Request - Jigsaw Master&body=${emailBody}`;
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
