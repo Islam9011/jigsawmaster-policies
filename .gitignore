@@ -110,3 +110,7 @@ android-sdk/ -e
 *.env
 *.env.*
 jigsaw-master-complete.zip
+-e 
+# Environment files
+*.env
+*.env.*
